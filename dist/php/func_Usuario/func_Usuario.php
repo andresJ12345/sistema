@@ -2,6 +2,7 @@
 
 function UsuariosTable($connMysql)
 {
+
     $SQL = "SELECT * from usuarios";
     $stmt = $connMysql->prepare($SQL);
     $stmt->execute();
@@ -14,16 +15,16 @@ function UsuariosTable($connMysql)
     $BtnBorrar = '';
     $BtnEditar = '';
     foreach ($result as $row) {
-       
-        $BtnEditar    = '<a class="BtnEditarCliCotizar" data-id="' . $row['id'] . '" href="javascript:void(0)" class="btn btn-primary" class="txt-success mr-15 " title="Editar cotizacion"><i class="ti-pencil-alt inline-block text-primary  font-22"></i> </a>';
-        $BtnBorrar = '<a class="BtnEditarCliCotizar" data-id="' . $row['id'] . '" href="javascript:void(0)" class="btn btn-primary" class="txt-success mr-15 " title="Editar cotizacion"><i class="ti-pencil-alt inline-block text-primary  font-22"></i> </a>';
-       
+
+        $BtnEditar    = '<a  data-id="' . $row['id'] . '" href="javascript:void(0)"  class="btn btn-outline-info mr-15  BtnEditarUSuario " title="Editar Usuario"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Editar </a>';
+        $BtnBorrar = '<a  data-id="' . $row['id'] . '" href="javascript:void(0)"  class="btn btn-outline-danger mr-15 BtnEliminarUSuario " title="Eliminar Usuario"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Borrar </a>';
+
 
         $anidado  = array();
         $anidado[] = $row['nombre'];
         $anidado[] = $row['Usuario'];
         $anidado[] = $row['fecha'];
-        $anidado[] ="<span>". $BtnEditar .$BtnBorrar ."</span>";
+        $anidado[] = "<h5>" . $BtnEditar . "  " . $BtnBorrar . "<h5>";
 
         $data[] = $anidado;
     }
@@ -35,25 +36,53 @@ function UsuariosTable($connMysql)
     );
     return json_encode($json_data);
 }
-
-function Prospectos($Asesor, $FechaInicial, $FechaFin, $TablaTipo, $connMysql)
+function AccionesUsuario($connMysql)
 {
-    $mes_start = strtotime('first day of this month', strtotime($FechaInicial));
-    $FechaInicial = date('Y-m-d', $mes_start);
-    $mes_end = strtotime('last day of this month', strtotime($FechaFin));
-    $FechaFin =  date('Y-m-d', $mes_end);
+    $FunctionsMySQL = new FunctionsMySQL();
 
-    $SQL  = "SELECT * from estr_clientes WHERE tipo_cliente = '$TablaTipo' AND ingresado_por = '$Asesor' AND created BETWEEN '$FechaInicial' AND '$FechaFin'";
+    unset($_POST['PostMethod']);
+    foreach ($_POST as $camposInsert => $valueCampo) {
+        if (strlen($valueCampo) > 0) {
+            $ArrayValidation[$camposInsert] = $valueCampo;
+        } else {
+            return 3;
+        }
+    }
 
-    // $SQL  = "SELECT * from estr_clientes WHERE ingresado_por = '$Asesor'";
+    $arraySQLDB = array(
+        'nombre' => $ArrayValidation['nombre'],
+        'Usuario' => $ArrayValidation['usuario'],
+        'fecha' => $ArrayValidation['fecha']
+    );
+    if ($ArrayValidation['idUser'] == 'NA') {
+        $FunctionsMySQL->Insert($arraySQLDB, 'usuarios', $connMysql);
+        return 1;
+    } else {
+        $arraySQLDB['id'] = $ArrayValidation['idUser'];
+        $FunctionsMySQL->Update($arraySQLDB, 'usuarios', $connMysql);
+        return 2;
+    }
+}
+
+
+function EliminarUSuario($connMysql)
+{
+    $idUser = $_POST['idUser'];
+    $SQL  = "DELETE from usuarios WHERE id='$idUser'";
 
     $stmt = $connMysql->prepare($SQL);
     $stmt->execute();
-    $CantidadTotal = $stmt->rowCount();
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $CantidadTotal;
+    return 1;
 }
-
+function DetalleUSuario($connMysql)
+{
+    $idUser = $_POST['idUser'];
+    $SQL  = "SELECT * from usuarios WHERE id='$idUser'";
+    $stmt = $connMysql->prepare($SQL);
+    $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return json_encode(array('nombre'=>$row['nombre'],'usuario'=>$row['Usuario'],'fecha'=>$row['fecha']));
+}
 // function CliCot($Asesor, $connMysql)
 // {
 //     $SQL  = "SELECT * from est_gestiones WHERE creado_por = '$Asesor'";

@@ -7,7 +7,7 @@ function connMysql()
         case 1:
             $username          = 'root';
             $password          = '';
-            $db                = 'estratego_crm';
+            $db                = 'db_sistema';
             return $connection = new PDO('mysql:host=localhost;dbname=' . $db, $username, $password, array(PDO::ATTR_PERSISTENT => true, PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES  \'utf8mb4\''));
             break;
         case 2:
