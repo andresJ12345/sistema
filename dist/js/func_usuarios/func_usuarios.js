@@ -38,6 +38,7 @@ $(document).on('click', '#btnModalUsuario', function (e) {
     $('#nombre').val('')
     $('#usuario').val('')
     $('#fecha').val('')
+    $('#idUser').val('NA')
     $("#ModalUsuario").modal({
         backdrop: 'static',
         keyboard: false

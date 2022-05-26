@@ -14,7 +14,7 @@
 
 <body>
 
-    <div class="container">
+    <div class="container bg-light">
 
         <nav class="navbar navbar-expand-lg bg-info mt-4 mb-2">
             <div class="container-fluid">
